@@ -20,10 +20,10 @@ TASKSTATUS = 7
 TASKPERSON1 = 8
 
 
-def generateBurnupChart(issues, start_date_of_sprints):
+def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
 
-    start_date = datetime.date(2021, 4, 9)
-    end_date = datetime.date(2021, 7, 2)
+    start_date = start_dates_of_sprints[0]
+    end_date = end_dates_of_sprints[-1]
 
     number_of_days = (end_date - start_date).days + 1
 
@@ -153,23 +153,28 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
         if start_date_of_issue == end_date:
             continue
 
+        # unfinished task must only be added to scope
         if finish_date_of_issue is None:
             if issue[TASKSTATUS] == FINISHED or issue[TASKSTATUS] == INPROGRESS:
                 start_index_for_adding = max(0, (start_date_of_issue - start_date).days)
                 for i in range(start_index_for_adding, number_of_days):
                     summed_scope_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
 
-        elif not finish_date_of_issue < start_date:
+        # if task is within sprint scope, add to scope and if completed also to completed
+        elif not (finish_date_of_issue < start_date or start_date_of_issue > end_date):
+            # add to completed if completed
             if issue[TASKSTATUS] == FINISHED:
                 start_index_for_adding = max(0, (finish_date_of_issue - start_date).days)
                 for i in range(start_index_for_adding, number_of_days):
                     summed_completed_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
 
+            # add to scope
             if issue[TASKSTATUS] == INPROGRESS or issue[TASKSTATUS] == FINISHED:
                 start_index_for_adding = max(0, (start_date_of_issue - start_date).days)
                 for i in range(start_index_for_adding, number_of_days):
                     summed_scope_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
 
+    # don't plot any days in the future
     index_of_today = (datetime.date.today() - end_date).days
     if index_of_today < 0:
         for i in range(index_of_today, 0, 1):
@@ -267,7 +272,7 @@ def generateBurnupCharts(issues, start_date_of_sprints, end_date_of_sprints):
     sprint_ranges = [list(sprint) for sprint in zip(start_date_of_sprints, end_date_of_sprints)]
 
     # generates the burnup chart for all sprints
-    generateBurnupChart(issues, start_date_of_sprints)
+    generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints)
 
     # generates individual sprint charts
     for sprint_count, sprint_range in enumerate(sprint_ranges, start=1):
@@ -288,7 +293,7 @@ def workedTimePerPersonChart(issues, people):
                 y[i] += float(issue[TASKPERSON1+i])
     plt.bar(x, y)
     plt.ylabel("Hours spent")
-    plt.title("Total hours on all issues", y=1.03, fontsize=22)
+    plt.title("Total hours spent on all issues", y=1.03, fontsize=22)
     plt.show()
 
 
