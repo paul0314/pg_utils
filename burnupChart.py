@@ -21,7 +21,6 @@ TASKPERSON1 = 8
 
 
 def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
-
     start_date = start_dates_of_sprints[0]
     end_date = end_dates_of_sprints[-1]
 
@@ -53,16 +52,16 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
     for i in range(len(summed_completed_story_points_daily_list) - 1):
         # horizontal, connecting line between neighboring dates for completed story points
         ax.plot(
-            (list_of_datetimes[i], list_of_datetimes[i+1]),
+            (list_of_datetimes[i], list_of_datetimes[i + 1]),
             (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i]),
             color='blue',
             linestyle='solid'
         )
         # vertical line segments between neighboring dates for completed story points
-        if summed_completed_story_points_daily_list[i] != summed_completed_story_points_daily_list[i+1]:
+        if summed_completed_story_points_daily_list[i] != summed_completed_story_points_daily_list[i + 1]:
             ax.plot(
-                (list_of_datetimes[i+1], list_of_datetimes[i+1]),
-                (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i+1]),
+                (list_of_datetimes[i + 1], list_of_datetimes[i + 1]),
+                (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i + 1]),
                 color='blue',
                 linestyle='solid'
             )
@@ -70,19 +69,26 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
     for i in range(len(summed_scope_story_points_daily_list) - 1):
         # horizontal, connecting line between neighboring dates for scope story points
         ax.plot(
-            (list_of_datetimes[i], list_of_datetimes[i+1]),
+            (list_of_datetimes[i], list_of_datetimes[i + 1]),
             (summed_scope_story_points_daily_list[i], summed_scope_story_points_daily_list[i]),
             color='orange',
             linestyle='solid'
         )
         # vertical line segments between neighboring dates for scope story points
-        if summed_scope_story_points_daily_list[i] != summed_scope_story_points_daily_list[i+1]:
+        if summed_scope_story_points_daily_list[i] != summed_scope_story_points_daily_list[i + 1]:
             ax.plot(
-                (list_of_datetimes[i+1], list_of_datetimes[i+1]),
+                (list_of_datetimes[i + 1], list_of_datetimes[i + 1]),
                 (summed_scope_story_points_daily_list[i], summed_scope_story_points_daily_list[i + 1]),
                 color='orange',
                 linestyle='solid'
             )
+
+    # ideal sprint curve
+    ax.plot((list_of_datetimes[0], list_of_datetimes[-1]),
+            (0, summed_scope_story_points_daily_list[-1]),
+            color='black',
+            linestyle='solid',
+            zorder=-1)
 
     # dotted horizontal lines for reference
     for i in range(5, summed_scope_story_points_daily_list[-1] + 9, 5):
@@ -109,7 +115,8 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
 
     orange_patch = mpatches.Patch(color='orange', label='Scope')
     blue_patch = mpatches.Patch(color='blue', label='Completed')
-    plt.legend(handles=[orange_patch, blue_patch], loc='center left', bbox_to_anchor=(1, 0.5))
+    black_patch = mpatches.Patch(color='black', label='Ideal')
+    plt.legend(handles=[orange_patch, blue_patch, black_patch], loc='center left', bbox_to_anchor=(1, 0.5))
 
     plt.title('Burnup Chart', fontsize=22, y=1.03)
 
@@ -129,7 +136,6 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
 
 
 def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='Burnup Chart'):
-
     start_date = sprint_start
     end_date = sprint_end
 
@@ -186,16 +192,16 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
     for i in range(len(summed_completed_story_points_daily_list) - 1):
         # horizontal, connecting line between neighboring dates for completed story points
         ax.plot(
-            (list_of_datetimes[i], list_of_datetimes[i+1]),
+            (list_of_datetimes[i], list_of_datetimes[i + 1]),
             (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i]),
             color='blue',
             linestyle='solid'
         )
         # vertical line segments between neighboring dates for completed story points
-        if summed_completed_story_points_daily_list[i] != summed_completed_story_points_daily_list[i+1]:
+        if summed_completed_story_points_daily_list[i] != summed_completed_story_points_daily_list[i + 1]:
             ax.plot(
-                (list_of_datetimes[i+1], list_of_datetimes[i+1]),
-                (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i+1]),
+                (list_of_datetimes[i + 1], list_of_datetimes[i + 1]),
+                (summed_completed_story_points_daily_list[i], summed_completed_story_points_daily_list[i + 1]),
                 color='blue',
                 linestyle='solid'
             )
@@ -203,29 +209,36 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
     for i in range(len(summed_scope_story_points_daily_list) - 1):
         # horizontal, connecting line between neighboring dates for scope story points
         ax.plot(
-            (list_of_datetimes[i], list_of_datetimes[i+1]),
+            (list_of_datetimes[i], list_of_datetimes[i + 1]),
             (summed_scope_story_points_daily_list[i], summed_scope_story_points_daily_list[i]),
             color='orange',
             linestyle='solid'
         )
         # vertical line segments between neighboring dates for scope story points
-        if summed_scope_story_points_daily_list[i] != summed_scope_story_points_daily_list[i+1]:
+        if summed_scope_story_points_daily_list[i] != summed_scope_story_points_daily_list[i + 1]:
             ax.plot(
-                (list_of_datetimes[i+1], list_of_datetimes[i+1]),
-                (summed_scope_story_points_daily_list[i], summed_scope_story_points_daily_list[i+1]),
+                (list_of_datetimes[i + 1], list_of_datetimes[i + 1]),
+                (summed_scope_story_points_daily_list[i], summed_scope_story_points_daily_list[i + 1]),
                 color='orange',
                 linestyle='solid'
             )
 
+    # ideal sprint curve
+    ax.plot((list_of_datetimes[0], list_of_datetimes[-1]),
+            (0, summed_scope_story_points_daily_list[-1]),
+            color='black',
+            linestyle='solid',
+            zorder=-1)
+
     # dotted horizontal lines for reference
     for i in range(5, summed_scope_story_points_daily_list[-1] + 9, 5):
-        ax.axhline(y=i, color='grey', linestyle='dotted', zorder=-1)
+        ax.axhline(y=i, color='grey', linestyle='dotted', zorder=-2)
 
     # dotted vertical lines for reference
     # ignore first and and last date
     for date in list_of_datetimes[1:-1]:
         if date.weekday() == FRIDAY:
-            plt.axvline(date, linestyle="dotted", zorder=-1)
+            plt.axvline(date, linestyle="dotted", zorder=-2)
 
     plt.xticks(rotation=30)
     # display xticks as day-month
@@ -243,7 +256,8 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
     # define legend
     orange_patch = mpatches.Patch(color='orange', label='Scope')
     blue_patch = mpatches.Patch(color='blue', label='Completed')
-    plt.legend(handles=[orange_patch, blue_patch], loc='center left', bbox_to_anchor=(1, 0.5))
+    black_patch = mpatches.Patch(color='black', label='Ideal')
+    plt.legend(handles=[orange_patch, blue_patch, black_patch], loc='center left', bbox_to_anchor=(1, 0.5))
 
     plt.title(chart_title, fontsize=22, y=1.03)
 
@@ -289,8 +303,8 @@ def workedTimePerPersonChart(issues, people):
     # sum up hours spent from all issues for all persons
     for issue in issues:
         for i in range(NUMBEROFPEOPLE):
-            if issue[TASKPERSON1+i]:
-                y[i] += float(issue[TASKPERSON1+i])
+            if issue[TASKPERSON1 + i]:
+                y[i] += float(issue[TASKPERSON1 + i])
     plt.bar(x, y)
     plt.ylabel("Hours spent")
     plt.title("Total hours spent on all issues", y=1.03, fontsize=22)
