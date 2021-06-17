@@ -1,8 +1,8 @@
 INPUT:
 1) Define Number of People in Excel Table
-2) Define all start dates of sprints
-3) Define all end dates of sprints (ideally 1 day before the following start date of the next sprint)
-4) Excel Table "TaskVerwaltung.csv" in same folder as this python file during execution
+2) Define a list of all start dates of sprints
+3) Define a list of all end dates of sprints (ideally 1 day before the following start date of the next sprint)
+4) Excel Table "TaskVerwaltung.csv" needs to be in the same folder as this python file during execution
    (csv format is important) with the following column format:
    (1 row is reserved for headers, first issue starts at second row)
   - Task Number (Format: # followed by a number without space)
