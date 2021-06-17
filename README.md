@@ -1,4 +1,5 @@
 INPUT:
+1) - 3) needs to be changed inside the burndownChart.py script code near the bottom inside the section "Define Inputs"
 1) Define Number of People in Excel Table
 2) Define a list of all start dates of sprints
 3) Define a list of all end dates of sprints (ideally 1 day before the following start date of the next sprint)
