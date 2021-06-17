@@ -20,7 +20,7 @@ TASKSTATUS = 7
 TASKPERSON1 = 8
 
 
-def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
+def generateBurnupChart(issues, start_dates_of_sprints, end_dates_of_sprints, save_plot=False):
     start_date = start_dates_of_sprints[0]
     end_date = end_dates_of_sprints[-1]
 
@@ -45,6 +45,12 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
             start_index_for_adding = max(0, (start_date_of_issue - start_date).days)
             for i in range(start_index_for_adding, number_of_days):
                 summed_scope_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
+
+    # don't plot any days in the future
+    index_of_today = min(0, (datetime.date.today() - end_dates_of_sprints[-1]).days - 1)
+    if index_of_today < 0:
+        for i in range(index_of_today, 0, 1):
+            summed_completed_story_points_daily_list[i] = None
 
     fig, ax = plt.subplots()
 
@@ -126,16 +132,19 @@ def generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints):
     tick_labels = plt.xticks()[0]
     sprint_end_positions = []
     for i, tick in enumerate(tick_labels):
-        if tick in dates.date2num(start_date_of_sprints):
+        if tick in dates.date2num(start_dates_of_sprints):
             sprint_end_positions.append(i)
 
     for end_position in sprint_end_positions:
         plt.gca().get_xticklabels()[end_position].set_color('red')
 
+    if save_plot:
+        plt.savefig('BurnupChart', dpi=300, bbox_inches='tight')
+
     plt.show()
 
 
-def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='Burnup Chart'):
+def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='Burnup Chart', save_plot=False):
     start_date = sprint_start
     end_date = sprint_end
 
@@ -181,7 +190,7 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
                     summed_scope_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
 
     # don't plot any days in the future
-    index_of_today = (datetime.date.today() - end_date).days
+    index_of_today = min(0, (datetime.date.today() - end_date).days - 1)
     if index_of_today < 0:
         for i in range(index_of_today, 0, 1):
             summed_completed_story_points_daily_list[i] = None
@@ -263,10 +272,13 @@ def generateBurnupChartForSprint(issues, sprint_start, sprint_end, chart_title='
 
     plt.margins(0)
 
+    if save_plot:
+        plt.savefig(chart_title, dpi=300, bbox_inches='tight')
+
     plt.show()
 
 
-def readExcel():
+def readExcel(number_of_people):
     filename = './TaskVerwaltung.csv'
 
     issues = []
@@ -276,46 +288,49 @@ def readExcel():
         for row in datareader:
             issues.append(row)
 
-        people = issues[:1][0][TASKPERSON1:TASKPERSON1 + NUMBEROFPEOPLE]
+        people = issues[:1][0][TASKPERSON1:TASKPERSON1 + number_of_people]
+        # issues start at second row
         issues = issues[1:]
 
     return issues, people
 
 
-def generateBurnupCharts(issues, start_date_of_sprints, end_date_of_sprints):
+def generateBurnupCharts(issues, start_date_of_sprints, end_date_of_sprints, save_plots=False):
     sprint_ranges = [list(sprint) for sprint in zip(start_date_of_sprints, end_date_of_sprints)]
 
     # generates the burnup chart for all sprints
-    generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints)
+    generateBurnupChart(issues, start_date_of_sprints, end_date_of_sprints, save_plots)
 
     # generates individual sprint charts
     for sprint_count, sprint_range in enumerate(sprint_ranges, start=1):
-        generateBurnupChartForSprint(issues, *sprint_range, "Sprint " + str(sprint_count))
+        generateBurnupChartForSprint(issues, *sprint_range, "Sprint " + str(sprint_count), save_plots)
 
 
 def parseDate(date):
     return datetime.datetime.strptime(date, "%d/%m/%Y").date()
 
 
-def workedTimePerPersonChart(issues, people):
+def workedTimePerPersonChart(issues, people, save_plot=False):
     x = [person for person in people]
     y = [0 for _ in people]
     # sum up hours spent from all issues for all persons
     for issue in issues:
-        for i in range(NUMBEROFPEOPLE):
+        for i in range(len(people)):
             if issue[TASKPERSON1 + i]:
                 y[i] += float(issue[TASKPERSON1 + i])
     plt.bar(x, y)
     plt.ylabel("Hours spent")
     plt.title("Total hours spent on all issues", y=1.03, fontsize=22)
+    if save_plot:
+        plt.savefig('HoursSpent', dpi=300, bbox_inches='tight')
     plt.show()
 
 
 # INPUT:
 # 1) Define Number of People in Excel Table
-# 2) Define all start dates of sprints
-# 3) Define all end dates of sprints (ideally 1 day before the following start date of the next sprint)
-# 4) Excel Table "TaskVerwaltung.csv" in same folder as this python file during execution
+# 2) Define a list of all start dates of sprints
+# 3) Define a list of all end dates of sprints (ideally 1 day before the following start date of the next sprint)
+# 4) Excel Table "TaskVerwaltung.csv" needs to be in the same folder as this python file during execution
 #    (csv format is important) with the following column format:
 #    (1 row is reserved for headers, first issue starts at second row)
 #   - Task Number (Format: # followed by a number without space)
@@ -332,12 +347,21 @@ def workedTimePerPersonChart(issues, people):
 #   - PersonN [hours spent on issue by PersonN] (Format: String)
 #   - (additional Columns will be ignored)
 
-# Define Inputs
-NUMBEROFPEOPLE = 4
-start_dates_of_sprints = [datetime.date(2021, 4, 9), datetime.date(2021, 5, 7), datetime.date(2021, 6, 11)]
-end_dates_of_sprints = [datetime.date(2021, 5, 6), datetime.date(2021, 6, 10), datetime.date(2021, 7, 1)]
-tasks, team = readExcel()
 
-# Generate Outputs
-generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints)
-workedTimePerPersonChart(tasks, team)
+def main():
+    # Define Inputs
+    NUMBEROFPEOPLE = 4
+    start_dates_of_sprints = [datetime.date(2021, 4, 9), datetime.date(2021, 5, 7), datetime.date(2021, 6, 11)]
+    end_dates_of_sprints = [datetime.date(2021, 5, 6), datetime.date(2021, 6, 10), datetime.date(2021, 7, 1)]
+    tasks, team = readExcel(NUMBEROFPEOPLE)
+
+    # Specify whether or not to save the created plots in your project folder as png files
+    save_plot = True
+
+    # Generate Outputs
+    generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints, save_plot)
+    workedTimePerPersonChart(tasks, team, save_plot)
+
+
+if __name__ == '__main__':
+    main()
