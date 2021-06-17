@@ -12,7 +12,7 @@ INPUT:
   - Task Risk (Format: one of the three values +, o, -)
   - Task Start [when the task was first added to a sprint] (Format: dd/mm/yyyy)
   - Task End [when the task has been completed] (Format: dd/mm/yyyy)
-  - Status [+ for finished, o for in progress, - for cancelled without completion (this case will be ignored for
+  - Status [+ for finished, o for in progress, - for cancelled without completion or not added to a sprint yet (this case will be ignored for
   calculating scope and completed points)] (Format: one of the three values +, o, -)
   - Person1 [hours spent on issue by Person1] (Format: String)
   - ...
