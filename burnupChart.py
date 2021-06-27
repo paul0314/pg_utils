@@ -200,6 +200,36 @@ def generateBurnupCharts(issues, start_date_of_sprints, end_date_of_sprints, sav
         generateBurnupChart(issues, *sprint_range, chart_title="Sprint " + str(sprint_count), save_plot=save_plots)
 
 
+def generatePointsScoredChart(issues, end_date_of_sprints, save_plot=False):
+    sprint_points = calculateScoredPointsPerSprint(issues, end_date_of_sprints)
+    pointsScoredChart(sprint_points, save_plot)
+
+
+def pointsScoredChart(sprint_points, save_plot=False):
+    x = ["Iteration " + str(i) for i in range(1, len(sprint_points) + 1)]
+    y = [points for points in sprint_points]
+    plt.bar(x, y)
+    plt.ylabel("Points achieved")
+    plt.title("Scored points per Iteration", y=1.03, fontsize=22)
+    if save_plot:
+        plt.savefig('ScoredPoints', dpi=300, bbox_inches='tight')
+    plt.show()
+
+
+def calculateScoredPointsPerSprint(issues, end_date_of_sprints):
+    sprint_points = [0 for _ in end_date_of_sprints]
+    for issue in issues:
+        if issue[TASKEND]:
+            finish_date_of_issue = parseDate(issue[TASKEND])
+        else:
+            break
+        for index, end_date in enumerate(end_date_of_sprints):
+            if finish_date_of_issue < end_date:
+                sprint_points[index] += float(issue[TASKDIFFICULTY])
+                break
+    return sprint_points
+
+
 def parseDate(date):
     return datetime.datetime.strptime(date, "%d/%m/%Y").date()
 
@@ -220,12 +250,24 @@ def workedTimePerPersonChart(issues, people, save_plot=False):
     plt.show()
 
 
+def fillMissingDifficultyForIssues(issues):
+    for issue in issues:
+        # ensure TASKDIFFICULTY is set (otherwise set it to 0)
+        if not issue[TASKDIFFICULTY]:
+            issue[TASKDIFFICULTY] = 0
+        # don't calculate with cancelled tasks
+        if issue[TASKSTATUS] == "-":
+            issue[TASKDIFFICULTY] = 0
+    return issues
+
+
 def main():
     # Define Inputs
     NUMBEROFPEOPLE = 4
     start_dates_of_sprints = [datetime.date(2021, 4, 9), datetime.date(2021, 5, 7), datetime.date(2021, 6, 11)]
     end_dates_of_sprints = [datetime.date(2021, 5, 6), datetime.date(2021, 6, 10), datetime.date(2021, 7, 1)]
     tasks, team = readExcel(NUMBEROFPEOPLE)
+    tasks = fillMissingDifficultyForIssues(tasks)
 
     # Specify whether or not to save the created plots in your project folder as png files
     save_plot = True
@@ -233,6 +275,7 @@ def main():
     # Generate Outputs
     generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints, save_plot)
     workedTimePerPersonChart(tasks, team, save_plot)
+    generatePointsScoredChart(tasks, end_dates_of_sprints, save_plot)
 
 
 if __name__ == '__main__':
