@@ -270,7 +270,7 @@ def main():
     tasks = fillMissingDifficultyForIssues(tasks)
 
     # Specify whether or not to save the created plots in your project folder as png files
-    save_plot = False
+    save_plot = True
 
     # Generate Outputs
     generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints, save_plot)
