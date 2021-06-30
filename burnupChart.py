@@ -224,7 +224,7 @@ def calculateScoredPointsPerSprint(issues, end_date_of_sprints):
         else:
             break
         for index, end_date in enumerate(end_date_of_sprints):
-            if finish_date_of_issue < end_date:
+            if finish_date_of_issue <= end_date:
                 sprint_points[index] += float(issue[TASKDIFFICULTY])
                 break
     return sprint_points
