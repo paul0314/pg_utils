@@ -128,7 +128,7 @@ def generateBurnupChart(issues, sprint_start, sprint_end, chart_title='Burnup Ch
     # ignore first and and last date
     for date in list_of_datetimes[1:-1]:
         if date.weekday() == FRIDAY:
-            plt.axvline(date, linestyle="dotted", zorder=-2)
+            plt.axvline(date, color='grey', linestyle="dotted", zorder=-2)
 
     plt.xticks(rotation=30)
     # display xticks as day-month
@@ -270,7 +270,7 @@ def main():
     tasks = fillMissingDifficultyForIssues(tasks)
 
     # Specify whether or not to save the created plots in your project folder as png files
-    save_plot = True
+    save_plot = False
 
     # Generate Outputs
     generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints, save_plot)
