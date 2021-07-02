@@ -179,7 +179,10 @@ def readExcel(number_of_people):
     with open(filename, 'r') as csvfile:
         datareader = csv.reader(csvfile)
         for row in datareader:
-            issues.append(row)
+            issue = []
+            for col in row:
+                issue.append(col.replace(",", "."))
+            issues.append(issue)
 
         people = issues[:1][0][TASKPERSON1:TASKPERSON1 + number_of_people]
         # issues start at second row
@@ -271,7 +274,7 @@ def main():
     tasks = fillMissingDifficultyForIssues(tasks)
 
     # Specify whether or not to save the created plots in your project folder as png files
-    save_plot = True
+    save_plot = False
 
     # Generate Outputs
     generateBurnupCharts(tasks, start_dates_of_sprints, end_dates_of_sprints, save_plot)
