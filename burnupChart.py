@@ -67,7 +67,7 @@ def generateBurnupChart(issues, sprint_start, sprint_end, chart_title='Burnup Ch
                     summed_scope_story_points_daily_list[i] += int(issue[TASKDIFFICULTY])
 
     # don't plot any days in the future
-    index_of_today = min(0, (datetime.date.today() - end_date).days)
+    index_of_today = min(0, (datetime.date.today() - end_date).days + 1)
 
     if index_of_today < 0:
         for i in range(index_of_today, 0, 1):
@@ -231,6 +231,7 @@ def calculateScoredPointsPerSprint(issues, end_date_of_sprints):
 
 
 def parseDate(date):
+    date = date.replace(".", "/")
     return datetime.datetime.strptime(date, "%d/%m/%Y").date()
 
 
@@ -264,8 +265,8 @@ def fillMissingDifficultyForIssues(issues):
 def main():
     # Define Inputs
     NUMBEROFPEOPLE = 4
-    start_dates_of_sprints = [datetime.date(2021, 4, 9), datetime.date(2021, 5, 7), datetime.date(2021, 6, 11)]
-    end_dates_of_sprints = [datetime.date(2021, 5, 6), datetime.date(2021, 6, 10), datetime.date(2021, 7, 1)]
+    start_dates_of_sprints = [datetime.date(2021, 4, 9), datetime.date(2021, 5, 7), datetime.date(2021, 6, 11), datetime.date(2021, 7, 2)]
+    end_dates_of_sprints = [datetime.date(2021, 5, 6), datetime.date(2021, 6, 10), datetime.date(2021, 7, 1), datetime.date(2021, 7, 22)]
     tasks, team = readExcel(NUMBEROFPEOPLE)
     tasks = fillMissingDifficultyForIssues(tasks)
 
